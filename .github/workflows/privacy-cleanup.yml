@@ -1,0 +1,115 @@
+name: One-time commit email privacy cleanup
+on:
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: one-time-email-privacy-cleanup
+  cancel-in-progress: false
+jobs:
+  cleanup:
+    if: github.actor == 'ayaneros-eng' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Verify unchanged files and replace commit emails
+        shell: bash
+        run: |
+          python3 - --helper --apply <<'PY'
+          """Replace commit email metadata without changing any committed file bytes."""
+          import json
+          import os
+          import re
+          import subprocess
+          import sys
+          from pathlib import Path
+          
+          ORIGINAL = "908af007778c100cd2a485b745d099c763c197a3"
+          ORIGINAL_TREE = "33666a53f459c81b5783f7c10d5023c7a5a02944"
+          TAG = "refs/tags/v2026.10.01"
+          PRIVATE = b"228732975+ayaneros-eng@users.noreply.github.com"
+          HELPER = ".github/workflows/privacy-cleanup.yml"
+          
+          def git(*args, data=None):
+              return subprocess.run(["git", *args], input=data, stdout=subprocess.PIPE,
+                                    stderr=subprocess.PIPE, check=True).stdout
+          
+          def sha(ref):
+              return git("rev-parse", ref).decode().strip()
+          
+          def rewrite(head, include_helper):
+              old = git("rev-list", "--reverse", "--topo-order", head).decode().splitlines()
+              assert len(old) == (7 if include_helper else 6), "Unexpected commit count"
+              assert old[-2 if include_helper else -1] == ORIGINAL
+              assert sha(ORIGINAL + "^{tree}") == ORIGINAL_TREE
+              if include_helper:
+                  changes = git("diff", "--name-only", ORIGINAL, head).decode().splitlines()
+                  assert changes == [HELPER], "Other concurrent changes exist"
+              mapped = {}
+              for before in old:
+                  raw = git("cat-file", "commit", before)
+                  headers, message = raw.split(b"\n\n", 1)
+                  output = []
+                  skipping = False
+                  for line in headers.split(b"\n"):
+                      if line.startswith(b" "):
+                          if not skipping:
+                              output.append(line)
+                          continue
+                      skipping = line.startswith((b"gpgsig ", b"gpgsig-sha256 "))
+                      if skipping:
+                          continue
+                      if line.startswith(b"parent "):
+                          parent = line[7:].decode()
+                          assert parent in mapped, "Unexpected parent"
+                          line = b"parent " + mapped[parent].encode()
+                      elif line.startswith((b"author ", b"committer ")):
+                          match = re.fullmatch(rb"(author|committer) (.+) <([^<>]+)> (\d+ [+-]\d{4})", line)
+                          assert match, "Unexpected identity metadata"
+                          role, name, email, stamp = match.groups()
+                          if not email.endswith((b"@users.noreply.github.com", b"@github.com")):
+                              assert name == b"ayaneros-eng", "Unexpected personal identity"
+                              line = role + b" " + name + b" <" + PRIVATE + b"> " + stamp
+                      output.append(line)
+                  rebuilt = b"\n".join(output) + b"\n\n" + message
+                  after = git("hash-object", "-t", "commit", "-w", "--stdin", data=rebuilt).decode().strip()
+                  assert sha(before + "^{tree}") == sha(after + "^{tree}")
+                  assert git("cat-file", "commit", after).split(b"\n\n", 1)[1] == message
+                  for identity in re.findall(rb"^(?:author|committer) .* <([^<>]+)>", rebuilt, re.M):
+                      assert identity.endswith((b"@users.noreply.github.com", b"@github.com"))
+                  mapped[before] = after
+              assert sha(head + "^{tree}") == sha(mapped[head] + "^{tree}")
+              return mapped
+          
+          def main():
+              include_helper = "--helper" in sys.argv
+              apply = "--apply" in sys.argv
+              head = sha("HEAD") if include_helper else sha("refs/heads/main")
+              mapping = rewrite(head, include_helper)
+              summary = {"commits_verified": len(mapping), "files_unchanged": True,
+                         "head_before": head, "head_after": mapping[head],
+                         "tag_before": ORIGINAL, "tag_after": mapping[ORIGINAL]}
+              output = Path(os.environ.get("PRIVACY_REPORT", "privacy-rewrite-verification.json"))
+              output.write_text(json.dumps({**summary, "mapping": mapping}, indent=2) + "\n", encoding="utf8")
+              if apply:
+                  assert include_helper
+                  assert os.environ.get("GITHUB_REPOSITORY") == "ayaneros-eng/yakouchuu-korean-patch"
+                  refs = {ref: commit for commit, ref in
+                          (line.split() for line in git("ls-remote", "--refs", "origin").decode().splitlines())}
+                  assert refs == {"refs/heads/main": head, TAG: ORIGINAL}, "Remote changed; refusing push"
+                  git("push", "--atomic",
+                      "--force-with-lease=refs/heads/main:" + head,
+                      "--force-with-lease=" + TAG + ":" + ORIGINAL,
+                      "origin", mapping[head] + ":refs/heads/main", mapping[ORIGINAL] + ":" + TAG)
+                  updated = {ref: commit for commit, ref in
+                             (line.split() for line in git("ls-remote", "--refs", "origin").decode().splitlines())}
+                  assert updated == {"refs/heads/main": mapping[head], TAG: mapping[ORIGINAL]}
+                  summary["remote_refs_verified"] = True
+              print(json.dumps(summary, indent=2))
+          
+          if __name__ == "__main__":
+              main()
+          PY
