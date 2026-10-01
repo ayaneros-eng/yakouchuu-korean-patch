@@ -79,8 +79,30 @@ Snes9x libretro 코어에서 곤도·살인벌·밀항자 세 계열을 대상�
 전체 엔딩 후 보너스의 일부 교정 문장은 개별 출력으로 확인했으며, 자연 해금 전체는 검증하지 않았습니다.
 다른 에뮬레이터 코어·실기와 전체 번역의 의미·문체에 대한 전수 검수도 완료하지 않았습니다.
 
-## 문제 제보
+## 오류 제보 / 검수 피드백
 
 텍스트 잘림, 미번역, 오역 또는 크래시를 발견하면 이 저장소의 Issues에 알려주세요.
 버전, 에뮬레이터 이름·버전, 발생 위치, 직전에 고른 선택지, 재현 방법을 함께 적으면 확인에 도움이 됩니다.
 가능하면 문제가 보이는 화면을 첨부하고, 게임 ROM은 첨부하지 마세요.
+
+[Issues 목록](https://github.com/ayaneros-eng/yakouchuu-korean-patch/issues)에서 같은 문제가 이미 등록되어 있는지 간단히 검색한 뒤,
+[한글패치 오류 제보](https://github.com/ayaneros-eng/yakouchuu-korean-patch/issues/new?template=01-error-report.yml) 양식을 작성해 주세요.
+패치 설치 질문, 의견, 건의는 [기타 문의](https://github.com/ayaneros-eng/yakouchuu-korean-patch/issues/new?template=02-question.yml) 양식을 이용해 주세요.
+제보 등록에는 GitHub 로그인이 필요합니다.
+
+- 가능하면 문제 하나당 Issue 하나로 작성하고, 서로 다른 오류는 나눠서 제보해 주세요.
+- 오역, 일본어 원문 잔존, 오탈자, 글자 잘림·깨짐, 그래픽 문제, 선택지 문제, 진행 불가 등을 제보할 수 있습니다.
+- 사용 중인 한글패치 버전을 적어 주세요. 텍스트 잘림·글자 깨짐·번역 오류는 스크린샷 첨부를 강하게 권장합니다.
+- Issue 작성 칸을 클릭한 뒤 이미지를 드래그하거나 붙여넣으면 스크린샷을 첨부할 수 있습니다.
+- 원본 게임 데이터나 ROM·ISO·NSP·XCI 파일은 첨부하지 말아 주세요.
+
+### 관리 방법
+
+관리자는 [Issues 목록](https://github.com/ayaneros-eng/yakouchuu-korean-patch/issues)에서 제보 제목을 눌러 내용을 확인하고 댓글로 답변하면 됩니다.
+오류 제보에는 `bug`, 기타 문의에는 `question` 라벨이 자동으로 붙습니다.
+필요하면 Issue 오른쪽의 Labels에서 `translation`(번역), `typo`(오탈자), `font`(글자 깨짐),
+`ui`(표시), `japanese-left`(일본어 잔존), `gameplay`(진행), `patch`(적용) 중 해당 라벨을 추가하세요.
+문제 종류 선택에 따른 세부 라벨은 관리자가 붙입니다.
+
+수정한 버전을 배포했으면 댓글에 버전을 적고 `fixed` 라벨을 붙인 뒤 **Close issue**를 누르면 됩니다.
+해결된 제보는 Closed 목록에서 다시 볼 수 있습니다.
