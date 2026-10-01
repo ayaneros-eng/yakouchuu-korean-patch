@@ -1,0 +1,102 @@
+name: "한글패치 오류 제보"
+description: "오역, 일본어 잔존, 글자 잘림, 폰트 깨짐, 진행 문제 등을 알려주세요."
+title: "[오류 제보] "
+labels:
+  - "bug"
+body:
+  - type: markdown
+    attributes:
+      value: |
+        발견한 문제를 알려주셔서 감사합니다!
+        - [기존 Issues](https://github.com/ayaneros-eng/yakouchuu-korean-patch/issues)에서 같은 문제가 있는지 간단히 검색해 주세요.
+        - 가능하면 **문제 하나당 Issue 하나**로 작성해 주세요. 서로 다른 오류는 나눠서 제보하면 확인하기 쉬워요.
+        - 한글패치 버전과 스크린샷이 있으면 수정에 큰 도움이 됩니다.
+        - 문제가 해결되면 관리자가 Issue를 Close(닫기)합니다.
+        - **원본 게임 데이터나 ROM·ISO·NSP·XCI 파일은 첨부하지 말아 주세요.**
+  - type: dropdown
+    id: problem-kind
+    attributes:
+      label: "문제 종류"
+      options:
+        - "오역 / 번역 오류"
+        - "일본어 원문 잔존"
+        - "오탈자 / 띄어쓰기"
+        - "문장 잘림 / UI 영역 초과"
+        - "폰트 / 글자 깨짐"
+        - "선택지 문제"
+        - "그래픽 / 이미지 한글화 문제"
+        - "게임 진행 불가 / 프리징"
+        - "패치 적용 문제"
+        - "기타"
+    validations:
+      required: true
+  - type: input
+    id: patch-version
+    attributes:
+      label: "사용 중인 한글패치 버전"
+      description: "배포 페이지나 받은 파일 이름을 확인해 주세요. 모르면 파일 이름 또는 '모름'을 적어도 됩니다."
+      placeholder: "예: v2026.10.01 / 2026-10-01 검수본 / v1.0"
+    validations:
+      required: true
+  - type: input
+    id: game-version
+    attributes:
+      label: "게임 버전 / 원판 정보 (선택)"
+      description: "이 패치의 대상은 슈퍼패미컴 일본 원판입니다. 판본·크기·CRC32 등 아는 정보만 적어 주세요. 원본 파일은 첨부하지 마세요."
+      placeholder: "예: 일본 원판, 헤더 없음, CRC32 0CD0E8D8 / 모름"
+  - type: dropdown
+    id: environment
+    attributes:
+      label: "실행 환경"
+      options:
+        - "실제 게임기"
+        - "에뮬레이터"
+        - "기타"
+    validations:
+      required: true
+  - type: input
+    id: emulator-details
+    attributes:
+      label: "에뮬레이터 이름·버전 / 기기 정보 (선택)"
+      description: "에뮬레이터를 사용했다면 이름과 버전을 적어 주세요. 실제 게임기라면 기종이나 사용한 장치를 적어 주세요."
+      placeholder: "예: Snes9x + 버전 번호 / 슈퍼패미컴 + 사용 장치"
+  - type: textarea
+    id: location
+    attributes:
+      label: "문제 발생 위치"
+      description: "챕터, 장면, 등장인물, 직전 선택지, 메뉴 이름 등 기억나는 내용을 자유롭게 적어 주세요."
+      placeholder: "예: 어느 인물과 대화하던 장면인지, 직전에 고른 선택지는 무엇인지"
+    validations:
+      required: true
+  - type: textarea
+    id: description
+    attributes:
+      label: "문제 내용"
+      description: "현재 표시되는 문장, 이상한 점, 정상적으로 보여야 한다고 생각하는 내용을 알려주세요."
+      placeholder: |
+        현재 표시되는 문장 또는 상황:
+        어떤 점이 이상한가요?
+        정상적으로 보여야 한다고 생각하는 내용 (가능하면):
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: "재현 방법 (선택)"
+      description: "같은 문제를 다시 보려면 어떻게 진행해야 하는지 적어 주세요. 정확히 기억나지 않으면 아는 부분만 적어도 됩니다."
+      placeholder: |
+        1. 게임을 시작하거나 어느 저장 지점에서 불러옵니다.
+        2. 어떤 선택지를 고릅니다.
+        3. 어느 화면에서 문제가 발생합니다.
+  - type: textarea
+    id: screenshots
+    attributes:
+      label: "스크린샷 (강력 권장)"
+      description: "텍스트 잘림, 글자 깨짐, 번역 오류는 스크린샷 첨부를 강하게 권장합니다. 이 칸을 클릭한 뒤 이미지를 드래그하거나 붙여넣으세요."
+      placeholder: "문제가 보이는 화면을 여기에 드래그하거나 붙여넣어 주세요."
+  - type: textarea
+    id: additional
+    attributes:
+      label: "추가 정보 (선택)"
+      description: "저장 지점, 저장 방식(게임 내 저장/세이브스테이트), 사용한 패치 도구 등 관련 정보를 적어 주세요. 저장 파일이 꼭 필요한 경우 관리자가 별도로 안내합니다."
+      placeholder: "원본 게임 데이터, ROM·ISO·NSP·XCI 파일이나 불법 배포 파일은 첨부하지 말아 주세요."
