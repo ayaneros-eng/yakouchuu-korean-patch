@@ -1,0 +1,15 @@
+# Game images and saves must stay local.
+*.sfc
+*.smc
+*.bin
+*.iso
+*.cue
+*.chd
+*.srm
+*.sav
+*.state
+*.state.*
+work/
+input/
+private/
+__pycache__/
